@@ -7,7 +7,7 @@ import { View, FlatList, StyleSheet, TouchableOpacity, Text } from 'react-native
 import TimerItem from './TimerItem';
 import BackgroundTimer from 'react-native-background-timer';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import TimerModal from './TimerModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -66,10 +66,6 @@ const TimerList: React.FC = () => {
 
           if (updatedTimer.remainingTime > 0) {
             updatedTimer.remainingTime--;
-          } else {
-            BackgroundTimer.clearInterval(updatedTimer.timerId);
-            updatedTimer.isRunning = false;
-            updatedTimer.timerId = null;
           }
 
           const updatedTimers = [...prevTimers];
@@ -77,22 +73,9 @@ const TimerList: React.FC = () => {
           return updatedTimers;
         });
       }, 1000);
-      
+
       setTimers((prevTimers) =>
         prevTimers.map(timer => timer.id === id ? { ...timer, isRunning: true, timerId } : timer)
-      );
-    }
-  };
-
-  const stopTimer = (id: string) => {
-    const currentTimer = timers.find(timer => timer.id === id);
-    if (currentTimer) {
-      BackgroundTimer.clearInterval(currentTimer.timerId);
-      setTimers((prevTimers) =>
-        prevTimers.map(timer => {
-          if (timer.id === id) return { ...timer, isRunning: false, timerId: null };
-          return timer;
-        })
       );
     }
   };
@@ -110,7 +93,7 @@ const TimerList: React.FC = () => {
     }
   };
 
-  const removeCompletedTimer = (id: string) => {
+  const removeTimer = (id: string) => {
     setTimers((prevTimers) => prevTimers.filter(timer => timer.id !== id));
   };
 
@@ -118,7 +101,7 @@ const TimerList: React.FC = () => {
     <View style={styles.container}>
       {timers.length === 0 ? (
         <View style={styles.emptyList}>
-          <FontAwesomeIcon name="clock-o" size={60} color="grey" />
+          <FontAwesome name="clock-o" size={60} color="grey" />
           <Text>No timers added yet</Text>
         </View>
       ) : (
@@ -129,9 +112,8 @@ const TimerList: React.FC = () => {
             <TimerItem
               timer={item}
               startTimer={startTimer}
-              stopTimer={stopTimer}
               pauseTimer={pauseTimer}
-              removeTimer={removeCompletedTimer}
+              removeTimer={removeTimer}
             />
           )}
         />

@@ -14,44 +14,46 @@ interface TimerItemProps {
     isRunning: boolean;
   };
   startTimer: (id: string) => void;
-  stopTimer: (id: string) => void;
   pauseTimer: (id: string) => void;
   removeTimer: (id: string) => void;
 }
 
-const TimerItem: React.FC<TimerItemProps> = ({ timer, startTimer, stopTimer, pauseTimer, removeTimer }) => {
+const TimerItem: React.FC<TimerItemProps> = ({ timer, startTimer, pauseTimer, removeTimer }) => {
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     seconds = seconds % 60;
-    return `${String(hours)}h ${String(minutes)}m ${String(seconds)}s`;
+    return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.labelText}>{timer.label}</Text>
+      <Text style={styles.labelText}>{timer.label} - </Text>
       <Text style={styles.timerText}>
-        {timer.remainingTime > 0 ? formatTime(timer.remainingTime) : ''}
+        {timer.remainingTime > 0 ? formatTime(timer.remainingTime) : '00h 00m 00s'}
       </Text>
       <View style={styles.buttonContainer}>
-        {timer.remainingTime === 0 ? (
+	{timer.remainingTime === 0 ? (
           <TouchableOpacity onPress={() => removeTimer(timer.id)} style={styles.circleButton}>
             <Icon name="check" size={30} color="green" />
           </TouchableOpacity>
-        ) : timer.isRunning ? (
-          <>
-            <TouchableOpacity onPress={() => pauseTimer(timer.id)} style={styles.circleButton}>
-              <Icon name="pause" size={30} color="blue" />
-            </TouchableOpacity>
-            <View style={styles.buttonPadding} />
-            <TouchableOpacity onPress={() => stopTimer(timer.id)} style={styles.circleButton}>
-              <Icon name="stop" size={30} color="red" />
-            </TouchableOpacity>
+        ) : (<>
+            {timer.isRunning ? (
+              <>
+                <TouchableOpacity onPress={() => pauseTimer(timer.id)} style={styles.circleButton}>
+                  <Icon name="pause" size={30} color="blue" />
+                </TouchableOpacity>
+              </>
+            ) : (<>
+              <TouchableOpacity onPress={() => startTimer(timer.id)} style={styles.circleButton}>
+                <Icon name="play" size={30} color="green" />
+              </TouchableOpacity>
+		<TouchableOpacity style={styles.closeButton} onPress={() => !timer.isRunning && removeTimer(timer.id)}>
+			<Icon name="close" size={30} color="red" />
+		</TouchableOpacity>
+		</>
+            )}
           </>
-        ) : (
-          <TouchableOpacity onPress={() => startTimer(timer.id)} style={styles.circleButton}>
-            <Icon name="play" size={30} color="green" />
-          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -72,22 +74,27 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   labelText: {
-    fontSize: 22,
+    fontSize: 22, // Larger font size for labels
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 5, // Added padding between label and time
   },
   timerText: {
-    fontSize: 16,
+    fontSize: 20, // Slightly smaller size for timer text
     flex: 1,
     color: '#000',
   },
   buttonContainer: {
     flexDirection: 'row',
   },
-  buttonPadding: {
-    width: 10,
-  },
   circleButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 30,
+    padding: 10,
+    elevation: 2,
+  },
+  closeButton: {
+    marginRight: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: 30,
     padding: 10,
